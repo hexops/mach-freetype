@@ -33,13 +33,15 @@ test {
     std.testing.refAllDeclsRecursive(@import("computations.zig"));
 }
 
-const firasans_font_path = sdkPath("/../upstream/assets/FiraSans-Regular.ttf");
-const firasans_font_data = @embedFile("../upstream/assets/FiraSans-Regular.ttf");
+const firasans_font_data = @import("font_assets").fira_sans_regular_ttf;
 
-test "create face from file" {
-    const lib = try ft.Library.init();
-    _ = try lib.createFace(firasans_font_path, 0);
-}
+// This test isn't used because the file is embedded into the binary and
+// no longer committed into the repo.
+//const firasans_font_path = sdkPath("/../upstream/assets/FiraSans-Regular.ttf");
+//test "create face from file" {
+//    const lib = try ft.Library.init();
+//    _ = try lib.createFace(firasans_font_path, 0);
+//}
 
 test "create face from memory" {
     const lib = try ft.Library.init();
@@ -53,7 +55,7 @@ test "create stroker" {
 
 test "load glyph" {
     const lib = try ft.Library.init();
-    const face = try lib.createFace(firasans_font_path, 0);
+    const face = try lib.createFaceMemory(firasans_font_data, 0);
 
     try face.setPixelSizes(100, 100);
     try face.setCharSize(10 * 10, 0, 72, 0);
@@ -66,7 +68,7 @@ test "load glyph" {
 
 test "charmap iterator" {
     const lib = try ft.Library.init();
-    const face = try lib.createFace(firasans_font_path, 0);
+    const face = try lib.createFaceMemory(firasans_font_data, 0);
     var iterator = face.iterateCharmap();
     var old_char: u32 = 0;
     while (iterator.next()) |char| {
@@ -77,13 +79,13 @@ test "charmap iterator" {
 
 test "get name index" {
     const lib = try ft.Library.init();
-    const face = try lib.createFace(firasans_font_path, 0);
+    const face = try lib.createFaceMemory(firasans_font_data, 0);
     try testing.expectEqual(@as(u32, 1120), face.getNameIndex("summation").?);
 }
 
 test "get index name" {
     const lib = try ft.Library.init();
-    const face = try lib.createFace(firasans_font_path, 0);
+    const face = try lib.createFaceMemory(firasans_font_data, 0);
     var buf: [32]u8 = undefined;
     try face.getGlyphName(1120, &buf);
     try testing.expectEqualStrings(std.mem.sliceTo(&buf, 0), "summation");
