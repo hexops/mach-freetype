@@ -4,12 +4,12 @@
 
     .dependencies = .{
         .harfbuzz = .{
-            .url = "https://github.com/hexops/harfbuzz/archive/d45a510ada557ad7facf843362db6d0e7fdd3904.tar.gz",
-            .hash = "1220fb3f74a676356936c29782845277aa633807b19397eec4f6accfd5d8fd42c753",
+            .url = "https://github.com/hexops/harfbuzz/archive/e614a4a6fcf1a40b57e08db5061a464b0636b29e.tar.gz",
+            .hash = "1220dbbc81060f4fdc95345b43c9214897063f0b050b1a23317d045456e46ed8aae3",
         },
         .freetype = .{
-            .url = "https://github.com/hexops/freetype/archive/910155a791751690ac0c81ab2a11c249375d62fb.tar.gz",
-            .hash = "12203f87212a07f0bb135943494c0edf37b3b3b4320ac7406e4f5eeab93504767a7b",
+            .url = "https://github.com/hexops/freetype/archive/d3b9bfb88e6832e75b49907efc9fe343b4b620bd.tar.gz",
+            .hash = "1220d6752594b317fc7147aec4935af74b4644c526ff20582ebaf2e2456725f92999",
         },
         .font_assets = .{
             .url = "https://github.com/hexops/font-assets/archive/a2ea4f20b566128c3a58fbe67a56d8d37042726f.tar.gz",
