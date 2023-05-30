@@ -1,19 +1,19 @@
 pub usingnamespace @import("color.zig");
+pub usingnamespace @import("computations.zig");
+pub usingnamespace @import("error.zig");
 pub usingnamespace @import("freetype.zig");
 pub usingnamespace @import("glyph.zig");
 pub usingnamespace @import("image.zig");
 pub usingnamespace @import("lcdfilter.zig");
 pub usingnamespace @import("stroke.zig");
 pub usingnamespace @import("types.zig");
-pub usingnamespace @import("computations.zig");
-pub usingnamespace @import("error.zig");
 pub const c = @import("c.zig");
 
 const std = @import("std");
 const testing = std.testing;
 const ft = @import("freetype.zig");
 
-fn sdkPath(comptime suffix: []const u8) []const u8 {
+fn sdkPath(comptime suffix: [*:0]const u8) [*:0]const u8 {
     if (suffix[0] != '/') @compileError("suffix must be an absolute path");
     return comptime blk: {
         const root_dir = std.fs.path.dirname(@src().file) orelse ".";
@@ -23,6 +23,7 @@ fn sdkPath(comptime suffix: []const u8) []const u8 {
 
 test {
     std.testing.refAllDeclsRecursive(@import("color.zig"));
+    std.testing.refAllDeclsRecursive(@import("computations.zig"));
     std.testing.refAllDeclsRecursive(@import("error.zig"));
     std.testing.refAllDeclsRecursive(@import("freetype.zig"));
     std.testing.refAllDeclsRecursive(@import("glyph.zig"));
@@ -30,7 +31,6 @@ test {
     std.testing.refAllDeclsRecursive(@import("lcdfilter.zig"));
     std.testing.refAllDeclsRecursive(@import("stroke.zig"));
     std.testing.refAllDeclsRecursive(@import("types.zig"));
-    std.testing.refAllDeclsRecursive(@import("computations.zig"));
 }
 
 const firasans_font_data = @import("font_assets").fira_sans_regular_ttf;

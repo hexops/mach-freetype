@@ -64,7 +64,7 @@ pub fn build(b: *Build) !void {
         var example_compile_step = b.step("example-" ++ example, "Compile '" ++ example ++ "' example");
         example_compile_step.dependOn(&example_install.step);
 
-        const example_run_cmd = example_exe.run();
+        const example_run_cmd = b.addRunArtifact(example_exe);
         if (b.args) |args| {
             example_run_cmd.addArgs(args);
         }
