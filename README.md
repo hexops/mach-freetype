@@ -99,10 +99,6 @@ Join the Mach engine community [on Discord](https://discord.gg/XNG3NZgCqp) to di
 
 Issues are tracked in the [main Mach repository](https://github.com/hexops/mach/issues?q=is%3Aissue+is%3Aopen+label%3Afreetype).
 
-## Contributing
-
-Contributions are very welcome. Pull requests must be sent to [the main repository](https://github.com/hexops/mach/tree/main/libs/freetype) to avoid some complex merge conflicts we'd get by accepting contributions in both repositories. Once the changes are merged there, they'll get sync'd to this repository automatically.
-
 # Thanks
 
 Special thanks to [@alichraghi](https://github.com/alichraghi), original author of these bindings who contributed them to Mach!
