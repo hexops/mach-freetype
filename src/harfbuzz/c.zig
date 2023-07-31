@@ -1,1 +1,1 @@
-pub usingnamespace @cImport(@cInclude("hb-ft.h"));
+pub usingnamespace @cImport(@cInclude("harfbuzz/hb-ft.h"));
