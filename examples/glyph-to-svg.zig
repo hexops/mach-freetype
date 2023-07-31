@@ -1,5 +1,6 @@
 const std = @import("std");
 const freetype = @import("freetype");
+const font_assets = @import("font-assets");
 
 const OutlinePrinter = struct {
     library: freetype.Library,
@@ -19,7 +20,7 @@ const OutlinePrinter = struct {
         var lib = try freetype.Library.init();
         return Self{
             .library = lib,
-            .face = try lib.createFace("upstream/assets/FiraSans-Regular.ttf", 0),
+            .face = try lib.createFaceMemory(font_assets.fira_sans_regular_ttf, 0),
             .output_file = file,
             .path_stream = std.io.fixedBufferStream(&buf),
             .xMin = 0,
