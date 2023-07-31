@@ -92,6 +92,14 @@ pub fn render(self: GlyphSlot, render_mode: RenderMode) Error!void {
     return intToError(c.FT_Render_Glyph(self.handle, @intFromEnum(render_mode)));
 }
 
+pub fn adjustWeight(self: GlyphSlot, x_delta: i32, y_delta: i32) void {
+    return c.FT_GlyphSlot_AdjustWeight(self.handle, x_delta, y_delta);
+}
+
+pub fn slant(self: GlyphSlot, x_slant: i32, y_slant: i32) void {
+    return c.FT_GlyphSlot_Slant(self.handle, x_slant, y_slant);
+}
+
 pub fn getSubGlyphInfo(self: GlyphSlot, sub_index: u32) Error!SubGlyphInfo {
     var info: SubGlyphInfo = undefined;
     try intToError(c.FT_Get_SubGlyph_Info(self.handle, sub_index, &info.index, &info.flags, &info.arg1, &info.arg2, &info.transform));
