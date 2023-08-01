@@ -1,6 +1,5 @@
 const freetype = @import("freetype");
 const c = @import("c.zig");
-const private = @import("private.zig");
 const Blob = @import("blob.zig").Blob;
 
 pub const UnicodeIterator = struct {
@@ -24,7 +23,7 @@ pub const Face = struct {
     }
 
     pub fn fromFreetypeFace(face: freetype.Face) Face {
-        return .{ .handle = private.hb_ft_face_create_referenced(face.handle).? };
+        return .{ .handle = c.hb_ft_face_create_referenced(@ptrCast(face.handle)).? };
     }
 
     pub fn initEmpty() Face {

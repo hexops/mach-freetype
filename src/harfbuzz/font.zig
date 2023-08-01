@@ -1,6 +1,5 @@
 const freetype = @import("freetype");
 const c = @import("c.zig");
-const private = @import("private.zig");
 const Face = @import("face.zig").Face;
 const Buffer = @import("buffer.zig").Buffer;
 const Feature = @import("common.zig").Feature;
@@ -15,7 +14,7 @@ pub const Font = struct {
     }
 
     pub fn fromFreetypeFace(face: freetype.Face) Font {
-        return .{ .handle = private.hb_ft_font_create_referenced(face.handle).? };
+        return .{ .handle = c.hb_ft_font_create_referenced(@ptrCast(face.handle)).? };
     }
 
     pub fn createSubFont(self: Font) Font {
@@ -33,7 +32,7 @@ pub const Font = struct {
     }
 
     pub fn setFreetypeLoadFlags(self: Font, flags: freetype.LoadFlags) void {
-        c.hb_ft_font_set_load_flags(self.handle, @as(i32, @bitCast(flags)));
+        c.hb_ft_font_set_load_flags(self.handle, @bitCast(flags));
     }
 
     pub fn getFace(self: Font) Face {
@@ -41,7 +40,7 @@ pub const Font = struct {
     }
 
     pub fn getFreetypeFace(self: Font) freetype.Face {
-        return .{ .handle = private.hb_ft_font_get_face(self.handle) };
+        return .{ .handle = @ptrCast(c.hb_ft_font_get_face(@ptrCast(self.handle))) };
     }
 
     pub fn getGlyph(self: Font, unicode: u32, variation_selector: u32) ?u32 {
@@ -60,7 +59,7 @@ pub const Font = struct {
         var x: c_uint = 0;
         var y: c_uint = 0;
         c.hb_font_get_ppem(self.handle, &x, &y);
-        return @Vector(2, u32){ @as(u32, @intCast(x)), @as(u32, @intCast(y)) };
+        return .{ @intCast(x), @intCast(y) };
     }
 
     pub fn getPTEM(self: Font) f32 {
@@ -71,7 +70,7 @@ pub const Font = struct {
         var x: c_int = 0;
         var y: c_int = 0;
         c.hb_font_get_scale(self.handle, &x, &y);
-        return @Vector(2, i32){ @as(i32, @intCast(x)), @as(i32, @intCast(y)) };
+        return .{ @intCast(x), @intCast(y) };
     }
 
     pub fn setFace(self: Font, face: Face) void {
@@ -79,24 +78,21 @@ pub const Font = struct {
     }
 
     pub fn shape(self: Font, buf: Buffer, features: ?[]const Feature) void {
-        hb_shape(
-            self.handle,
+        c.hb_shape(
+            @ptrCast(self.handle),
             buf.handle,
-            if (features) |f| f.ptr else null,
-            if (features) |f| @as(c_uint, @intCast(f.len)) else 0,
+            if (features) |f| @ptrCast(f.ptr) else null,
+            if (features) |f| @intCast(f.len) else 0,
         );
     }
 
     pub fn shapeFull(self: Font, buf: Buffer, features: ?[]const Feature, shapers: Shapers) error{ShapingFailed}!void {
-        if (hb_shape_full(
-            self.handle,
+        if (c.hb_shape_full(
+            @ptrCast(self.handle),
             buf.handle,
-            if (features) |f| f.ptr else null,
-            if (features) |f| @as(c_uint, @intCast(f.len)) else 0,
+            if (features) |f| @ptrCast(f.ptr) else null,
+            if (features) |f| @intCast(f.len) else 0,
             shapers,
         ) < 1) return error.ShapingFailed;
     }
 };
-
-pub extern fn hb_shape(font: ?*c.hb_font_t, buffer: ?*c.hb_buffer_t, features: [*c]const Feature, num_features: c_uint) void;
-pub extern fn hb_shape_full(font: ?*c.hb_font_t, buffer: ?*c.hb_buffer_t, features: [*c]const Feature, num_features: c_uint, shaper_list: [*c]const [*c]const u8) u8;
