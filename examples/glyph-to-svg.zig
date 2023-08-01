@@ -120,5 +120,5 @@ pub fn main() !void {
 
     var outline_printer = try OutlinePrinter.init(file);
     defer outline_printer.deinit();
-    try outline_printer.run(@as(u32, 'ë'));
+    try outline_printer.run('ë');
 }

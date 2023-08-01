@@ -37,12 +37,12 @@ pub const CharmapIterator = struct {
         return .{
             .face = face,
             .index = i,
-            .charcode = @as(u32, @intCast(cc)),
+            .charcode = @intCast(cc),
         };
     }
 
     pub fn next(self: *CharmapIterator) ?u32 {
-        self.charcode = @as(u32, @intCast(c.FT_Get_Next_Char(self.face.handle, self.charcode, &self.index)));
+        self.charcode = @intCast(c.FT_Get_Next_Char(self.face.handle, self.charcode, &self.index));
         return if (self.index != 0)
             self.charcode
         else
@@ -77,11 +77,11 @@ pub fn attachStream(self: Face, args: OpenArgs) Error!void {
 }
 
 pub fn loadGlyph(self: Face, index: u32, flags: LoadFlags) Error!void {
-    return intToError(c.FT_Load_Glyph(self.handle, index, @as(i32, @bitCast(flags))));
+    return intToError(c.FT_Load_Glyph(self.handle, index, @bitCast(flags)));
 }
 
 pub fn loadChar(self: Face, char: u32, flags: LoadFlags) Error!void {
-    return intToError(c.FT_Load_Char(self.handle, char, @as(i32, @bitCast(flags))));
+    return intToError(c.FT_Load_Char(self.handle, char, @bitCast(flags)));
 }
 
 pub fn setCharSize(self: Face, pt_width: i32, pt_height: i32, horz_resolution: u16, vert_resolution: u16) Error!void {
@@ -133,11 +133,11 @@ pub fn getKerning(self: Face, left_char_index: u32, right_char_index: u32, mode:
 pub fn getTrackKerning(self: Face, point_size: i32, degree: i32) Error!i32 {
     var kerning: c_long = 0;
     try intToError(c.FT_Get_Track_Kerning(self.handle, point_size, degree, kerning));
-    return @as(i32, @intCast(kerning));
+    return @intCast(kerning);
 }
 
 pub fn getGlyphName(self: Face, index: u32, buf: []u8) Error!void {
-    try intToError(c.FT_Get_Glyph_Name(self.handle, index, buf.ptr, @as(c_uint, @intCast(buf.len))));
+    try intToError(c.FT_Get_Glyph_Name(self.handle, index, buf.ptr, @intCast(buf.len)));
 }
 
 pub fn getPostscriptName(self: Face) ?[:0]const u8 {
@@ -160,7 +160,7 @@ pub fn setCharmap(self: Face, char_map: *CharMap) Error!void {
 }
 
 pub fn getFSTypeFlags(self: Face) FSType {
-    return @as(FSType, @bitCast(c.FT_Get_FSType_Flags(self.handle)));
+    return @bitCast(c.FT_Get_FSType_Flags(self.handle));
 }
 
 pub fn getCharVariantIndex(self: Face, char: u32, variant_selector: u32) ?u32 {
@@ -181,21 +181,21 @@ pub fn getCharVariantIsDefault(self: Face, char: u32, variant_selector: u32) ?bo
 
 pub fn getVariantSelectors(self: Face) ?[]u32 {
     return if (c.FT_Face_GetVariantSelectors(self.handle)) |chars|
-        @as([]u32, @ptrCast(std.mem.sliceTo(@as([*:0]u32, @ptrCast(chars)), 0)))
+        @ptrCast(std.mem.sliceTo(@as([*:0]u32, @ptrCast(chars)), 0))
     else
         null;
 }
 
 pub fn getVariantsOfChar(self: Face, char: u32) ?[]u32 {
     return if (c.FT_Face_GetVariantsOfChar(self.handle, char)) |variants|
-        @as([]u32, @ptrCast(std.mem.sliceTo(@as([*:0]u32, @ptrCast(variants)), 0)))
+        @ptrCast(std.mem.sliceTo(@as([*:0]u32, @ptrCast(variants)), 0))
     else
         null;
 }
 
 pub fn getCharsOfVariant(self: Face, variant_selector: u32) ?[]u32 {
     return if (c.FT_Face_GetCharsOfVariant(self.handle, variant_selector)) |chars|
-        @as([]u32, @ptrCast(std.mem.sliceTo(@as([*:0]u32, @ptrCast(chars)), 0)))
+        @ptrCast(std.mem.sliceTo(@as([*:0]u32, @ptrCast(chars)), 0))
     else
         null;
 }
@@ -263,23 +263,23 @@ pub fn newSize(self: Face) Error!Size {
 }
 
 pub fn numFaces(self: Face) u32 {
-    return @as(u32, @intCast(self.handle.*.num_faces));
+    return @intCast(self.handle.*.num_faces);
 }
 
 pub fn faceIndex(self: Face) u32 {
-    return @as(u32, @intCast(self.handle.*.face_index));
+    return @intCast(self.handle.*.face_index);
 }
 
 pub fn faceFlags(self: Face) FaceFlags {
-    return @as(FaceFlags, @bitCast(self.handle.*.face_flags));
+    return @bitCast(self.handle.*.face_flags);
 }
 
 pub fn styleFlags(self: Face) StyleFlags {
-    return @as(StyleFlags, @bitCast(self.handle.*.style_flags));
+    return @bitCast(self.handle.*.style_flags);
 }
 
 pub fn numGlyphs(self: Face) u32 {
-    return @as(u32, @intCast(self.handle.*.num_glyphs));
+    return @intCast(self.handle.*.num_glyphs);
 }
 
 pub fn familyName(self: Face) ?[:0]const u8 {
@@ -297,7 +297,7 @@ pub fn styleName(self: Face) ?[:0]const u8 {
 }
 
 pub fn numFixedSizes(self: Face) u32 {
-    return @as(u32, @intCast(self.handle.*.num_fixed_sizes));
+    return @intCast(self.handle.*.num_fixed_sizes);
 }
 
 pub fn availableSizes(self: Face) []BitmapSize {
@@ -309,16 +309,16 @@ pub fn availableSizes(self: Face) []BitmapSize {
 
 pub fn getAdvance(self: Face, glyph_index: u32, load_flags: LoadFlags) Error!i32 {
     var a: c_long = 0;
-    try intToError(c.FT_Get_Advance(self.handle, glyph_index, @as(i32, @bitCast(load_flags)), &a));
-    return @as(i32, @intCast(a));
+    try intToError(c.FT_Get_Advance(self.handle, glyph_index, @bitCast(load_flags), &a));
+    return @intCast(a);
 }
 
 pub fn getAdvances(self: Face, start: u32, advances_out: []c_long, load_flags: LoadFlags) Error!void {
-    try intToError(c.FT_Get_Advances(self.handle, start, @as(u32, @intCast(advances_out.len)), @as(i32, @bitCast(load_flags)), advances_out.ptr));
+    try intToError(c.FT_Get_Advances(self.handle, start, @intCast(advances_out.len), @bitCast(load_flags), advances_out.ptr));
 }
 
 pub fn numCharmaps(self: Face) u32 {
-    return @as(u32, @intCast(self.handle.*.num_charmaps));
+    return @intCast(self.handle.*.num_charmaps);
 }
 
 pub fn charmaps(self: Face) []const CharMap {

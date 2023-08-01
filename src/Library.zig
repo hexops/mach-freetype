@@ -74,11 +74,9 @@ pub fn createOutlineFromBitmap(self: Library, bitmap: Bitmap) Error!Outline {
 }
 
 pub fn renderOutline(self: Library, outline: Outline, params: *RasterParams) Error!void {
-    try intToError(FT_Outline_Render(self.handle, outline.handle, params));
+    try intToError(c.FT_Outline_Render(self.handle, outline.handle, @ptrCast(params)));
 }
 
 pub fn setLcdFilter(self: Library, lcd_filter: LcdFilter) Error!void {
     return intToError(c.FT_Library_SetLcdFilter(self.handle, @intFromEnum(lcd_filter)));
 }
-
-pub extern fn FT_Outline_Render(library: c.FT_Library, outline: [*c]c.FT_Outline, params: [*c]RasterParams) c_int;

@@ -167,11 +167,11 @@ pub const OpenArgs = struct {
 
     pub fn cast(self: OpenArgs) c.FT_Open_Args {
         var oa: c.FT_Open_Args = undefined;
-        oa.flags = @as(u32, @bitCast(self.flags));
+        oa.flags = @bitCast(self.flags);
         switch (self.data) {
             .memory => |d| {
                 oa.memory_base = d.ptr;
-                oa.memory_size = @as(u31, @intCast(d.len));
+                oa.memory_size = @intCast(d.len);
             },
             // The Freetype API requires a mutable string.
             // This is an oversight, Freetype actually never writes to this string.
@@ -179,8 +179,8 @@ pub const OpenArgs = struct {
             .stream => |d| oa.stream = d,
             .driver => |d| oa.driver = d,
             .params => |*d| {
-                oa.params = @as(*c.FT_Parameter, @ptrFromInt(@intFromPtr(d.ptr)));
-                oa.num_params = @as(u31, @intCast(d.len));
+                oa.params = @constCast(d.ptr);
+                oa.num_params = @intCast(d.len);
             },
         }
         return oa;
@@ -189,5 +189,5 @@ pub const OpenArgs = struct {
 
 pub fn getCharmapIndex(self: [*c]CharMap) ?u32 {
     const i = c.FT_Get_Charmap_Index(self);
-    return if (i == -1) null else @as(u32, @intCast(i));
+    return if (i == -1) null else @intCast(i);
 }
