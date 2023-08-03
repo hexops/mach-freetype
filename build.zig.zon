@@ -3,12 +3,12 @@
     .version = "0.0.0",
     .dependencies = .{
         .harfbuzz = .{
-            .url = "https://pkg.machengine.org/harfbuzz/b2b05db76bf1bdc36114fae3c4d2d6a6cc37672b.tar.gz",
-            .hash = "122091fd50873c798922f94af3b3806625c4f9d78918db0b19535074f657af6e7635",
+            .url = "https://pkg.machengine.org/harfbuzz/b07a66905bf65f3dc7083b410dedaab90f3e3091.tar.gz",
+            .hash = "122074b6a975b3a10ddf22381a960c9de162d43739f88b1db9fd3c595ef6455ca68c",
         },
         .font_assets = .{
-            .url = "https://pkg.machengine.org/font-assets/485743539569239fd977c3aecd7b44afe05a53e0.tar.gz",
-            .hash = "122067699758c764b7565694fdb49fc0281f39ef2b0a52924aef36e1ca75f0f29139",
+            .url = "https://pkg.machengine.org/font-assets/2cdc997d5c562069c58aab8dd323a00803e71411.tar.gz",
+            .hash = "1220949c57771934ddae2d71a171117e02c447bbd1e15fb53963884d1b1738859136",
         },
     },
 }
