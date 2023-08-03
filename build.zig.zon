@@ -3,8 +3,8 @@
     .version = "0.0.0",
     .dependencies = .{
         .harfbuzz = .{
-            .url = "https://pkg.machengine.org/harfbuzz/b07a66905bf65f3dc7083b410dedaab90f3e3091.tar.gz",
-            .hash = "122074b6a975b3a10ddf22381a960c9de162d43739f88b1db9fd3c595ef6455ca68c",
+            .url = "https://pkg.machengine.org/harfbuzz/91c5cc81a0c417c013240573f220b74f93ce5ce1.tar.gz",
+            .hash = "1220c0aea5e47227847532e7f08d7ddc393201e9a5db99dd729760a6fd1934ccfa2b",
         },
         .font_assets = .{
             .url = "https://pkg.machengine.org/font-assets/2cdc997d5c562069c58aab8dd323a00803e71411.tar.gz",
