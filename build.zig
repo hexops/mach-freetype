@@ -13,55 +13,62 @@ pub fn build(b: *std.Build) !void {
     });
     _ = harfbuzz_module;
 
-    const harfbuzz_dep = b.dependency("harfbuzz", .{
-        .optimize = optimize,
-        .target = target,
-        .enable_freetype = true,
-        .freetype_use_system_zlib = use_system_zlib,
-        .freetype_enable_brotli = enable_brotli,
-    });
-    const font_assets_dep = b.dependency("font_assets", .{});
+    // TODO: uncomment all this code once hexops/mach#902 is fixed, b.dependency("harfbuzz") cannot
+    // be called inside `pub fn build` if we want this package to be usable via the package manager.
+    _ = optimize;
+    _ = target;
+    _ = use_system_zlib;
+    _ = enable_brotli;
 
-    const freetype_tests = b.addTest(.{
-        .name = "freetype-tests",
-        .root_source_file = .{ .path = "src/main.zig" },
-        .target = target,
-        .optimize = optimize,
-    });
-    freetype_tests.addModule("font-assets", font_assets_dep.module("font-assets"));
-    freetype_tests.linkLibrary(harfbuzz_dep.artifact("harfbuzz"));
+    // const harfbuzz_dep = b.dependency(harfbuzz_import_path, .{
+    //     .optimize = optimize,
+    //     .target = target,
+    //     .enable_freetype = true,
+    //     .freetype_use_system_zlib = use_system_zlib,
+    //     .freetype_enable_brotli = enable_brotli,
+    // });
+    // const font_assets_dep = b.dependency("font_assets", .{});
 
-    const harfbuzz_tests = b.addTest(.{
-        .name = "harfbuzz-tests",
-        .root_source_file = .{ .path = "src/harfbuzz/main.zig" },
-        .target = target,
-        .optimize = optimize,
-    });
-    harfbuzz_tests.addModule("freetype", freetype_module);
-    harfbuzz_tests.linkLibrary(harfbuzz_dep.artifact("harfbuzz"));
+    // const freetype_tests = b.addTest(.{
+    //     .name = "freetype-tests",
+    //     .root_source_file = .{ .path = "src/main.zig" },
+    //     .target = target,
+    //     .optimize = optimize,
+    // });
+    // freetype_tests.addModule("font-assets", font_assets_dep.module("font-assets"));
+    // freetype_tests.linkLibrary(harfbuzz_dep.artifact("harfbuzz"));
 
-    const test_step = b.step("test", "Run library tests");
-    test_step.dependOn(&b.addRunArtifact(freetype_tests).step);
-    test_step.dependOn(&b.addRunArtifact(harfbuzz_tests).step);
+    // const harfbuzz_tests = b.addTest(.{
+    //     .name = "harfbuzz-tests",
+    //     .root_source_file = .{ .path = "src/harfbuzz/main.zig" },
+    //     .target = target,
+    //     .optimize = optimize,
+    // });
+    // harfbuzz_tests.addModule("freetype", freetype_module);
+    // harfbuzz_tests.linkLibrary(harfbuzz_dep.artifact("harfbuzz"));
 
-    inline for ([_][]const u8{
-        "single-glyph",
-        "glyph-to-svg",
-    }) |example| {
-        const example_exe = b.addExecutable(.{
-            .name = example,
-            .root_source_file = .{ .path = "examples/" ++ example ++ ".zig" },
-            .target = target,
-            .optimize = optimize,
-        });
-        example_exe.addModule("freetype", freetype_module);
-        example_exe.addModule("font-assets", font_assets_dep.module("font-assets"));
-        example_exe.linkLibrary(harfbuzz_dep.artifact("harfbuzz"));
+    // const test_step = b.step("test", "Run library tests");
+    // test_step.dependOn(&b.addRunArtifact(freetype_tests).step);
+    // test_step.dependOn(&b.addRunArtifact(harfbuzz_tests).step);
 
-        const example_run_cmd = b.addRunArtifact(example_exe);
-        if (b.args) |args| example_run_cmd.addArgs(args);
+    // inline for ([_][]const u8{
+    //     "single-glyph",
+    //     "glyph-to-svg",
+    // }) |example| {
+    //     const example_exe = b.addExecutable(.{
+    //         .name = example,
+    //         .root_source_file = .{ .path = "examples/" ++ example ++ ".zig" },
+    //         .target = target,
+    //         .optimize = optimize,
+    //     });
+    //     example_exe.addModule("freetype", freetype_module);
+    //     example_exe.addModule("font-assets", font_assets_dep.module("font-assets"));
+    //     example_exe.linkLibrary(harfbuzz_dep.artifact("harfbuzz"));
 
-        const example_run_step = b.step("run-" ++ example, "Run '" ++ example ++ "' example");
-        example_run_step.dependOn(&example_run_cmd.step);
-    }
+    //     const example_run_cmd = b.addRunArtifact(example_exe);
+    //     if (b.args) |args| example_run_cmd.addArgs(args);
+
+    //     const example_run_step = b.step("run-" ++ example, "Run '" ++ example ++ "' example");
+    //     example_run_step.dependOn(&example_run_cmd.step);
+    // }
 }
