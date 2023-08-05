@@ -6,9 +6,9 @@ pub fn build(b: *std.Build) !void {
     const use_system_zlib = b.option(bool, "use_system_zlib", "Use system zlib") orelse false;
     const enable_brotli = b.option(bool, "enable_brotli", "Build brotli") orelse false;
 
-    const freetype_module = b.addModule("mach-freetype", .{ .source_file = .{ .path = "src/main.zig" } });
+    const freetype_module = b.addModule("mach-freetype", .{ .source_file = .{ .path = "src/freetype.zig" } });
     const harfbuzz_module = b.addModule("mach-harfbuzz", .{
-        .source_file = .{ .path = "src/harfbuzz/main.zig" },
+        .source_file = .{ .path = "src/harfbuzz.zig" },
         .dependencies = &.{.{ .name = "freetype", .module = freetype_module }},
     });
     _ = harfbuzz_module;
