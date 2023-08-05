@@ -2,6 +2,10 @@
     .name = "mach-freetype",
     .version = "0.0.0",
     .dependencies = .{
+        .freetype = .{
+            .url = "https://pkg.machengine.org/freetype/08684e51fbd0de15b918605d403cdfae402807c7.tar.gz",
+            .hash = "1220bfdd4eeac92af0f6cc2d63898cbebb45a4e62c0d5783261567783ea7dbc26fe6",
+        },
         .harfbuzz = .{
             .url = "https://pkg.machengine.org/harfbuzz/67b985c93eae7ab8b1a024b2b4249b4fc2ae2756.tar.gz",
             .hash = "1220604f5cc7db54dafa29676289923af62623a1ccfbb5efce3cd329278a4829f01b",

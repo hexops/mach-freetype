@@ -20,7 +20,13 @@ pub fn build(b: *std.Build) !void {
     _ = use_system_zlib;
     _ = enable_brotli;
 
-    // const harfbuzz_dep = b.dependency(harfbuzz_import_path, .{
+    // const freetype_dep = b.dependency("freetype", .{
+    //     .optimize = optimize,
+    //     .target = target,
+    //     .use_system_zlib = use_system_zlib,
+    //     .enable_brotli = enable_brotli,
+    // });
+    // const harfbuzz_dep = b.dependency("harfbuzz", .{
     //     .optimize = optimize,
     //     .target = target,
     //     .enable_freetype = true,
@@ -45,6 +51,7 @@ pub fn build(b: *std.Build) !void {
     //     .optimize = optimize,
     // });
     // harfbuzz_tests.addModule("freetype", freetype_module);
+    // harfbuzz_tests.linkLibrary(freetype_dep.artifact("freetype"));
     // harfbuzz_tests.linkLibrary(harfbuzz_dep.artifact("harfbuzz"));
 
     // const test_step = b.step("test", "Run library tests");
@@ -63,6 +70,7 @@ pub fn build(b: *std.Build) !void {
     //     });
     //     example_exe.addModule("freetype", freetype_module);
     //     example_exe.addModule("font-assets", font_assets_dep.module("font-assets"));
+    //     example_exe.linkLibrary(freetype_dep.artifact("freetype"));
     //     example_exe.linkLibrary(harfbuzz_dep.artifact("harfbuzz"));
 
     //     const example_run_cmd = b.addRunArtifact(example_exe);
