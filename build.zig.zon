@@ -3,16 +3,16 @@
     .version = "0.0.0",
     .dependencies = .{
         .freetype = .{
-            .url = "https://pkg.machengine.org/freetype/125f4cf566475e57e0df495091180cce60deed84.tar.gz",
-            .hash = "122017a2966901d29e2dbecdfe5e538ea31f9c230f2f66abb6843e94051b1b8256e4",
+            .url = "https://pkg.machengine.org/freetype/a1adc1bb641d02addd0ef84c4e9707a647ec6a64.tar.gz",
+            .hash = "1220a0ad25083374fa1d7d90cfbe345c192dbc37ef905e7acde134527a29820f453c",
         },
         .brotli = .{
             .url = "https://pkg.machengine.org/brotli/b574788e32438f543ee552beec8bc70b05a465c2.tar.gz",
             .hash = "122054602e178b287f13ed7b37c4bd54eb50af88dc2f9d9ba9e3c084fb4175f298a1",
         },
         .harfbuzz = .{
-            .url = "https://pkg.machengine.org/harfbuzz/b6ae926461ae5829fa490923af4f51d4bb9315da.tar.gz",
-            .hash = "12209a3bd7f9aa7084f6b16821290f156ec20544338880c76bbc1e2d761f2fbbb531",
+            .url = "https://pkg.machengine.org/harfbuzz/86dfd7164753673c813771349b16207e5d12f802.tar.gz",
+            .hash = "122099865a0f9c6d90a559e5a49488157ed7ebb646754bc27632b717ad9db758e77c",
         },
         .font_assets = .{
             .url = "https://pkg.machengine.org/font-assets/75eaadbbabfe76f912945e059d95df0b1b64fe79.tar.gz",
