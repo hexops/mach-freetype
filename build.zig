@@ -1,5 +1,8 @@
 const std = @import("std");
 
+pub var brotli_import_path: []const u8 = "brotli";
+pub var freetype_import_path: []const u8 = "freetype";
+
 pub fn build(b: *std.Build) !void {
     const optimize = b.standardOptimizeOption(.{});
     const target = b.standardTargetOptions(.{});
@@ -34,27 +37,27 @@ pub fn build(b: *std.Build) !void {
     //     .freetype_use_system_zlib = use_system_zlib,
     //     .freetype_enable_brotli = enable_brotli,
     // });
+    // _ = harfbuzz_dep;
     // const font_assets_dep = b.dependency("font_assets", .{});
 
     // const freetype_tests = b.addTest(.{
     //     .name = "freetype-tests",
-    //     .root_source_file = .{ .path = "src/main.zig" },
+    //     .root_source_file = .{ .path = "src/freetype.zig" },
     //     .target = target,
     //     .optimize = optimize,
     // });
     // freetype_tests.addModule("font-assets", font_assets_dep.module("font-assets"));
-    // freetype_tests.linkLibrary(harfbuzz_dep.artifact("harfbuzz"));
+    // linkFreetype(b, optimize, target, freetype_tests);
 
     // const harfbuzz_tests = b.addTest(.{
     //     .name = "harfbuzz-tests",
-    //     .root_source_file = .{ .path = "src/harfbuzz/main.zig" },
+    //     .root_source_file = .{ .path = "src/harfbuzz.zig" },
     //     .target = target,
     //     .optimize = optimize,
     // });
     // harfbuzz_tests.addModule("freetype", freetype_module);
-    // harfbuzz_tests.linkLibrary(@import("freetype").lib(b, optimize, target));
-    // harfbuzz_tests.linkLibrary(harfbuzz_dep.artifact("harfbuzz"));
-    // @import("freetype").addPaths(harfbuzz_tests);
+    // linkFreetype(b, optimize, target, harfbuzz_tests);
+    // linkHarfbuzz(b, optimize, target, harfbuzz_tests);
 
     // const test_step = b.step("test", "Run library tests");
     // test_step.dependOn(&b.addRunArtifact(freetype_tests).step);
@@ -70,11 +73,10 @@ pub fn build(b: *std.Build) !void {
     //         .target = target,
     //         .optimize = optimize,
     //     });
-    //     example_exe.addModule("freetype", freetype_module);
     //     example_exe.addModule("font-assets", font_assets_dep.module("font-assets"));
-    //     example_exe.linkLibrary(@import("freetype").lib(b, optimize, target));
-    //     example_exe.linkLibrary(harfbuzz_dep.artifact("harfbuzz"));
-    //     @import("freetype").addPaths(example_exe);
+    //     example_exe.addModule("freetype", freetype_module);
+    //     linkFreetype(b, optimize, target, example_exe);
+    //     linkHarfbuzz(b, optimize, target, example_exe);
 
     //     const example_run_cmd = b.addRunArtifact(example_exe);
     //     if (b.args) |args| example_run_cmd.addArgs(args);
@@ -82,4 +84,26 @@ pub fn build(b: *std.Build) !void {
     //     const example_run_step = b.step("run-" ++ example, "Run '" ++ example ++ "' example");
     //     example_run_step.dependOn(&example_run_cmd.step);
     // }
+}
+
+pub fn linkFreetype(
+    b: *std.Build,
+    optimize: std.builtin.OptimizeMode,
+    target: std.zig.CrossTarget,
+    step: *std.build.CompileStep,
+) void {
+    @import("freetype").brotli_import_path = brotli_import_path;
+    step.linkLibrary(@import("freetype").lib(b, optimize, target));
+    @import("freetype").addPaths(step);
+}
+
+pub fn linkHarfbuzz(
+    b: *std.Build,
+    optimize: std.builtin.OptimizeMode,
+    target: std.zig.CrossTarget,
+    step: *std.build.CompileStep,
+) void {
+    @import("harfbuzz").freetype_import_path = freetype_import_path;
+    step.linkLibrary(@import("harfbuzz").lib(b, optimize, target));
+    @import("harfbuzz").addPaths(step);
 }
