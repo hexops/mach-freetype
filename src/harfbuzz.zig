@@ -275,6 +275,7 @@ pub const Position = extern struct {
     y_advance: i32,
     x_offset: i32,
     y_offset: i32,
+    @"var": i32,
 };
 
 pub const Blob = struct {
@@ -989,4 +990,20 @@ test "flags" {
     try expect(@as(c_int, @bitCast(Buffer.Flags{ .verify = true })) == c.HB_BUFFER_FLAG_VERIFY);
     try expect(@as(c_int, @bitCast(Buffer.Flags{ .produce_unsafe_to_concat = true })) == c.HB_BUFFER_FLAG_PRODUCE_UNSAFE_TO_CONCAT);
     try expect(@as(c_int, @bitCast(Buffer.Flags{ .produce_safe_to_insert_tatweel = true })) == c.HB_BUFFER_FLAG_PRODUCE_SAFE_TO_INSERT_TATWEEL);
+}
+
+fn matchStructs(comptime A: type, comptime B: type) !void {
+    const fieldsA = std.meta.fields(A);
+    const fieldsB = std.meta.fields(B);
+    try expect(fieldsA.len == fieldsB.len);
+    inline for (fieldsA, fieldsB) |fieldA, fieldB| {
+        try expect(@sizeOf(fieldA.type) == @sizeOf(fieldB.type));
+        try expect(@alignOf(fieldA.type) == @alignOf(fieldB.type));
+        try expect(std.mem.eql(u8, fieldA.name, fieldB.name));
+    }
+}
+
+test "structs" {
+    try matchStructs(Position, c.hb_glyph_position_t);
+    try matchStructs(GlyphInfo, c.hb_glyph_info_t);
 }
