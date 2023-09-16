@@ -15,8 +15,8 @@
             .hash = "12206659398359bd48edbdcc5cf610ccff2b7af04a93acc946197a444bbe6ad34061",
         },
         .font_assets = .{
-            .url = "https://pkg.machengine.org/font-assets/75eaadbbabfe76f912945e059d95df0b1b64fe79.tar.gz",
-            .hash = "122054bb06ce0b5b083c1720afbbc762e0a2ad6228170de2db998eaa0f66267f08fb",
+            .url = "https://pkg.machengine.org/font-assets/7b44dbabe209d574bb9400b6b31737d072afe9f8.tar.gz",
+            .hash = "122022d40902e7a5776995b5c46625a38617f4dc2eb30755df979f64f7a429bae5db",
         },
     },
 }
