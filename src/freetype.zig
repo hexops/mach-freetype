@@ -203,18 +203,18 @@ pub const SizeRequestType = enum(u3) {
 
 pub const Paint = union(PaintFormat) {
     color_layers: PaintColrLayers,
-    glyph: PaintGlyph,
     solid: PaintSolid,
     linear_gradient: PaintLinearGradient,
     radial_gradient: PaintRadialGradient,
     sweep_gradient: PaintSweepGradient,
+    glyph: PaintGlyph,
+    color_glyph: PaintColrGlyph,
     transform: PaintTransform,
     translate: PaintTranslate,
     scale: PaintScale,
     rotate: PaintRotate,
     skew: PaintSkew,
     composite: PaintComposite,
-    color_glyph: PaintColrGlyph,
 };
 
 pub const FaceFlags = packed struct(c_long) {
@@ -351,7 +351,7 @@ pub const Bitmap = struct {
     }
 
     pub fn buffer(self: Bitmap) ?[]const u8 {
-        const buffer_size = std.math.absCast(self.pitch()) * self.rows();
+        const buffer_size = @abs(self.pitch()) * self.rows();
         return if (self.handle.buffer == null)
             // freetype returns a null pointer for zero-length allocations
             // https://github.com/hexops-graveyard/freetype/blob/bbd80a52b7b749140ec87d24b6c767c5063be356/freetype/src/base/ftutil.c#L135
@@ -1828,7 +1828,26 @@ const std = @import("std");
 const font_assets = @import("font-assets");
 
 test "reference declarations" {
+    // TODO: we cannot refAllDeclsRecursive(@This()) because of some errors in the
+    // translate-c output
     std.testing.refAllDecls(@This());
+
+    std.testing.refAllDeclsRecursive(Bitmap);
+    std.testing.refAllDeclsRecursive(BitmapGlyph);
+    std.testing.refAllDeclsRecursive(Affine23);
+    std.testing.refAllDeclsRecursive(Face);
+    std.testing.refAllDeclsRecursive(Glyph);
+    std.testing.refAllDeclsRecursive(GlyphLayersIterator);
+    std.testing.refAllDeclsRecursive(GlyphSlot);
+    std.testing.refAllDeclsRecursive(Library);
+    std.testing.refAllDeclsRecursive(OpenArgs);
+    std.testing.refAllDeclsRecursive(Outline);
+    std.testing.refAllDeclsRecursive(OutlineGlyph);
+    std.testing.refAllDeclsRecursive(PaletteData);
+    std.testing.refAllDeclsRecursive(Raster);
+    std.testing.refAllDeclsRecursive(Size);
+    std.testing.refAllDeclsRecursive(Stroker);
+    std.testing.refAllDeclsRecursive(SvgGlyph);
 }
 
 test "create face from memory" {
