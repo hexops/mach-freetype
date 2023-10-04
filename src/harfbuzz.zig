@@ -270,11 +270,13 @@ pub const GlyphInfo = extern struct {
     }
 };
 
-pub const Position = extern struct {
+pub const GlyphPosition = extern struct {
     x_advance: i32,
     y_advance: i32,
     x_offset: i32,
     y_offset: i32,
+
+    /// Private / internal field.
     @"var": i32,
 };
 
@@ -528,10 +530,10 @@ pub const Buffer = struct {
         return @ptrCast(c.hb_buffer_get_glyph_infos(@ptrCast(self.handle), &length)[0..length]);
     }
 
-    pub fn getGlyphPositions(self: Buffer) ?[]Position {
+    pub fn getGlyphPositions(self: Buffer) ?[]GlyphPosition {
         var length: u32 = 0;
         return if (c.hb_buffer_get_glyph_positions(@ptrCast(self.handle), &length)) |positions|
-            @as([*]Position, @ptrCast(positions))[0..length]
+            @as([*]GlyphPosition, @ptrCast(positions))[0..length]
         else
             null;
     }
@@ -608,11 +610,11 @@ pub const Face = struct {
         c.hb_face_destroy(self.handle);
     }
 
-    pub fn getGlyphcount(self: Face) u32 {
+    pub fn getGlyphCount(self: Face) u32 {
         return c.hb_face_get_glyph_count(self.handle);
     }
 
-    pub fn setGlyphcount(self: Face, count: u32) void {
+    pub fn setGlyphCount(self: Face, count: u32) void {
         return c.hb_face_set_glyph_count(self.handle, count);
     }
 
@@ -671,6 +673,16 @@ pub const Feature = extern struct {
 pub const Font = struct {
     handle: *c.hb_font_t,
 
+    // Font-wide extent values, measured in font units.
+    //
+    // .ascender: The height of typographic ascenders.
+    // .descender: The depth of typographic descenders.
+    // .line_gap: The suggested line-spacing gap.
+    //
+    // Note that typically .ascender is positive and .descender negative, in coordinate systems that
+    // grow up.
+    pub const Extents = c.hb_font_extents_t;
+
     pub fn init(face: Face) Font {
         return .{ .handle = c.hb_font_create(face.handle).? };
     }
@@ -717,15 +729,243 @@ pub const Font = struct {
         return Font{ .handle = c.hb_font_get_parent(self.handle) orelse return null };
     }
 
-    pub fn getPPEM(self: Font) @Vector(2, u32) {
-        var x: c_uint = 0;
-        var y: c_uint = 0;
-        c.hb_font_get_ppem(self.handle, &x, &y);
-        return .{ @intCast(x), @intCast(y) };
+    pub fn setFace(self: Font, face: Face) void {
+        return c.hb_font_set_face(self.handle, face.handle);
     }
 
-    pub fn getPTEM(self: Font) f32 {
-        return c.hb_font_get_ptem(self.handle);
+    pub fn Funcs(
+        comptime Context: type,
+        comptime FontData: type,
+    ) type {
+        return struct {
+            handle: *c.hb_font_funcs_t,
+
+            const F = @This();
+
+            pub fn init(
+                comptime general: struct {
+                    get_nominal_glyph: ?fn (
+                        font: Font,
+                        font_data: *FontData,
+                        unicode: u21,
+                        out_glyph: *u32,
+                        ctx: *Context,
+                    ) bool,
+                    get_nominal_glyphs: ?fn (
+                        font: Font,
+                        font_data: *FontData,
+                        count: u32,
+                        first_unicode: [*]const u32,
+                        unicode_stride: u32,
+                        first_glyph: [*]const u32,
+                        glyph_stride: u32,
+                        ctx: *Context,
+                    ) u32,
+                    get_variation_glyph: ?fn (
+                        font: Font,
+                        font_data: *FontData,
+                        unicode: u21,
+                        variation_selector: u21,
+                        out_glyph: *u32,
+                        ctx: *Context,
+                    ) bool,
+                    get_font_h_extents: ?fn (
+                        font: Font,
+                        font_data: *FontData,
+                        out_metrics: *Font.Extents,
+                        ctx: *Context,
+                    ) bool,
+                    get_glyph_h_advances: ?fn (
+                        font: Font,
+                        font_data: *FontData,
+                        count: u32,
+                        first_glyph: [*]const u32,
+                        glyph_stride: u32,
+                        out_first_advance: [*]i32,
+                        advance_stride: u32,
+                        ctx: *Context,
+                    ) void,
+                },
+            ) ?F {
+                const handle = c.hb_font_funcs_create() orelse return null;
+
+                const HB_NO_VERTICAL = false;
+                _ = HB_NO_VERTICAL;
+                const HB_NO_OT_SHAPE_FALLBACK = false;
+                _ = HB_NO_OT_SHAPE_FALLBACK;
+                const HB_NO_DRAW = false;
+                _ = HB_NO_DRAW;
+                const HB_NO_PAINT = false;
+                _ = HB_NO_PAINT;
+
+                if (general.get_nominal_glyph) |callback| c.hb_font_funcs_set_nominal_glyph_func(handle, (struct {
+                    pub fn cCallback(
+                        font: ?*c.hb_font_t,
+                        font_data: ?*anyopaque,
+                        unicode: c.hb_codepoint_t,
+                        out_glyph: [*c]c.hb_codepoint_t,
+                        user_data: ?*anyopaque,
+                    ) callconv(.C) c.hb_bool_t {
+                        return if (callback(
+                            Font{ .handle = font.? },
+                            @ptrCast(font_data),
+                            @intCast(unicode),
+                            @ptrCast(out_glyph),
+                            @ptrCast(user_data.?),
+                        )) 1 else 0;
+                    }
+                }).cCallback, null, null);
+
+                if (general.get_nominal_glyphs) |callback| c.hb_font_funcs_set_nominal_glyphs_func(handle, (struct {
+                    pub fn cCallback(
+                        font: ?*c.hb_font_t,
+                        font_data: ?*anyopaque,
+                        count: c_uint,
+                        first_unicode: [*c]const c.hb_codepoint_t,
+                        unicode_stride: u32,
+                        first_glyph: [*c]const c.hb_codepoint_t,
+                        glyph_stride: u32,
+                        user_data: ?*anyopaque,
+                    ) callconv(.C) c_uint {
+                        return callback(
+                            Font{ .handle = font.? },
+                            @ptrCast(font_data),
+                            count,
+                            first_unicode,
+                            unicode_stride,
+                            first_glyph,
+                            glyph_stride,
+                            @ptrCast(user_data.?),
+                        );
+                    }
+                }).cCallback, null, null);
+
+                if (general.get_variation_glyph) |callback| c.hb_font_funcs_set_variation_glyph_func(handle, (struct {
+                    pub fn cCallback(
+                        font: ?*c.hb_font_t,
+                        font_data: ?*anyopaque,
+                        unicode: c.hb_codepoint_t,
+                        variation_selector: c.hb_codepoint_t,
+                        out_glyph: [*c]c.hb_codepoint_t,
+                        user_data: ?*anyopaque,
+                    ) callconv(.C) c.hb_bool_t {
+                        return if (callback(
+                            Font{ .handle = font.? },
+                            @ptrCast(font_data),
+                            @intCast(unicode),
+                            @intCast(variation_selector),
+                            @ptrCast(out_glyph),
+                            @ptrCast(user_data.?),
+                        )) 1 else 0;
+                    }
+                }).cCallback, null, null);
+
+                if (general.get_font_h_extents) |callback| c.hb_font_funcs_set_font_h_extents_func(handle, (struct {
+                    pub fn cCallback(
+                        font: ?*c.hb_font_t,
+                        font_data: ?*anyopaque,
+                        out_metrics: [*c]Font.Extents,
+                        user_data: ?*anyopaque,
+                    ) callconv(.C) c.hb_bool_t {
+                        return if (callback(
+                            Font{ .handle = font.? },
+                            @ptrCast(font_data),
+                            @ptrCast(out_metrics),
+                            @ptrCast(user_data.?),
+                        )) 1 else 0;
+                    }
+                }).cCallback, null, null);
+
+                if (general.get_glyph_h_advances) |callback| c.hb_font_funcs_set_glyph_h_advances_func(handle, (struct {
+                    pub fn cCallback(
+                        font: ?*c.hb_font_t,
+                        font_data: ?*anyopaque,
+                        count: c_uint,
+                        first_glyph: [*c]const c.hb_codepoint_t,
+                        glyph_stride: u32,
+                        out_first_advance: [*c]i32,
+                        advance_stride: u32,
+                        user_data: ?*anyopaque,
+                    ) callconv(.C) void {
+                        return callback(
+                            Font{ .handle = font.? },
+                            @ptrCast(font_data),
+                            count,
+                            first_glyph,
+                            glyph_stride,
+                            out_first_advance,
+                            advance_stride,
+                            @ptrCast(user_data.?),
+                        );
+                    }
+                }).cCallback, null, null);
+
+                // #ifndef HB_NO_VERTICAL
+                //     //hb_font_funcs_set_font_v_extents_func (funcs, hb_ft_get_font_v_extents, nullptr, nullptr);
+                //     hb_font_funcs_set_glyph_v_advance_func (funcs, hb_ft_get_glyph_v_advance, nullptr, nullptr);
+                //     hb_font_funcs_set_glyph_v_origin_func (funcs, hb_ft_get_glyph_v_origin, nullptr, nullptr);
+                // #endif
+
+                // #ifndef HB_NO_OT_SHAPE_FALLBACK
+                //     hb_font_funcs_set_glyph_h_kerning_func (funcs, hb_ft_get_glyph_h_kerning, nullptr, nullptr);
+                // #endif
+                //     hb_font_funcs_set_glyph_extents_func (funcs, hb_ft_get_glyph_extents, nullptr, nullptr);
+                //     hb_font_funcs_set_glyph_contour_point_func (funcs, hb_ft_get_glyph_contour_point, nullptr, nullptr);
+                //     hb_font_funcs_set_glyph_name_func (funcs, hb_ft_get_glyph_name, nullptr, nullptr);
+                //     hb_font_funcs_set_glyph_from_name_func (funcs, hb_ft_get_glyph_from_name, nullptr, nullptr);
+
+                // #ifndef HB_NO_DRAW
+                //     hb_font_funcs_set_draw_glyph_func (funcs, hb_ft_draw_glyph, nullptr, nullptr);
+                // #endif
+
+                // #ifndef HB_NO_PAINT
+                // #if (FREETYPE_MAJOR*10000 + FREETYPE_MINOR*100 + FREETYPE_PATCH) >= 21300
+                //     hb_font_funcs_set_paint_glyph_func (funcs, hb_ft_paint_glyph, nullptr, nullptr);
+                // #endif
+                // #endif
+
+                c.hb_font_funcs_make_immutable(handle);
+
+                return F{
+                    .handle = handle,
+                };
+            }
+
+            pub fn reference(f: F) F {
+                return .{
+                    .handle = c.hb_font_funcs_reference(f.handle).?,
+                };
+            }
+
+            pub fn deinit(f: F) void {
+                c.hb_font_funcs_destroy(f.handle);
+            }
+        };
+    }
+
+    // funcs type: Funcs(Context, FontData)
+    pub fn setFuncs(
+        self: Font,
+        comptime Context: type,
+        comptime FontData: type,
+        ctx: *Context,
+        funcs: Funcs(Context, FontData),
+        destroy: fn (font_data: *FontData) void,
+    ) void {
+        return c.hb_font_set_funcs(
+            self.handle,
+            funcs.handle,
+            ctx,
+            (struct {
+                pub fn cCallback(font_data: ?*anyopaque) callconv(.C) void {
+                    destroy(@ptrCast(font_data));
+                }
+            }).cCallback,
+        );
+    }
+
+    pub fn setScale(self: Font, x_scale: i32, y_scale: i32) void {
+        c.hb_font_set_scale(self.handle, x_scale, y_scale);
     }
 
     pub fn getScale(self: Font) @Vector(2, i32) {
@@ -735,8 +975,52 @@ pub const Font = struct {
         return .{ @intCast(x), @intCast(y) };
     }
 
-    pub fn setFace(self: Font, face: Face) void {
-        return c.hb_font_set_face(self.handle, face.handle);
+    // A zero value means "no hinting in that direction"
+    pub fn setPPEM(self: Font, x: u32, y: u32) void {
+        c.hb_font_set_ppem(self.handle, x, y);
+    }
+
+    pub fn getPPEM(self: Font) @Vector(2, u32) {
+        var x: c_uint = 0;
+        var y: c_uint = 0;
+        c.hb_font_get_ppem(self.handle, &x, &y);
+        return .{ @intCast(x), @intCast(y) };
+    }
+
+    // Point size per EM.  Used for optical-sizing in CoreText
+    // A value of zero means "not set".
+    pub fn setPTEM(self: Font, ptem: f32) void {
+        c.hb_font_set_ptem(self.handle, ptem);
+    }
+
+    pub fn getPTEM(self: Font) f32 {
+        return c.hb_font_get_ptem(self.handle);
+    }
+
+    const SyntheticBold = struct {
+        x_embolden: f32,
+        y_embolden: f32,
+        in_place: bool,
+    };
+
+    pub fn setSyntheticBold(self: Font, v: SyntheticBold) void {
+        c.hb_font_set_synthetic_bold(self.handle, v.x_embolden, v.y_embolden, v.in_place);
+    }
+
+    pub fn getSyntheticBold(self: Font) SyntheticBold {
+        var v: SyntheticBold = undefined;
+        var in_place: c.hb_bool_t = undefined;
+        c.hb_font_get_synthetic_bold(self.handle, &v.x_embolden, &v.y_embolden, &in_place);
+        v.in_place = in_place > 0;
+        return v;
+    }
+
+    pub fn setSyntheticSlant(self: Font, slant: f32) void {
+        c.hb_font_set_synthetic_slant(self.handle, slant);
+    }
+
+    pub fn getSyntheticSlant(self: Font) f32 {
+        return c.hb_font_get_synthetic_slant(self.handle);
     }
 
     pub fn shape(self: Font, buf: Buffer, features: ?[]const Feature) void {
@@ -1004,6 +1288,6 @@ fn matchStructs(comptime A: type, comptime B: type) !void {
 }
 
 test "structs" {
-    try matchStructs(Position, c.hb_glyph_position_t);
+    try matchStructs(GlyphPosition, c.hb_glyph_position_t);
     try matchStructs(GlyphInfo, c.hb_glyph_info_t);
 }
