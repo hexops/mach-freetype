@@ -485,7 +485,7 @@ pub const Face = struct {
     }
 
     pub fn getTrackKerning(self: Face, point_size: i32, degree: i32) Error!i32 {
-        var kerning: c_long = 0;
+        const kerning: c_long = 0;
         try intToError(c.FT_Get_Track_Kerning(self.handle, point_size, degree, kerning));
         return @intCast(kerning);
     }
@@ -1032,7 +1032,7 @@ pub const Library = struct {
     }
 
     pub fn createOutlineFromBitmap(self: Library, bitmap: Bitmap) Error!Outline {
-        var o: Outline = undefined;
+        const o: Outline = undefined;
         try intToError(c.FT_Outline_Get_Bitmap(self.handle, o.handle, &bitmap.handle));
         return o;
     }
