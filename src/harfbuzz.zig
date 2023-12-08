@@ -382,7 +382,7 @@ pub const Buffer = struct {
     handle: *c.hb_buffer_t,
 
     pub fn init() ?Buffer {
-        var b = c.hb_buffer_create();
+        const b = c.hb_buffer_create();
         if (c.hb_buffer_allocation_successful(b) < 1)
             return null;
         return Buffer{ .handle = b.? };
@@ -393,7 +393,7 @@ pub const Buffer = struct {
     }
 
     pub fn initSimilar(self: Buffer) ?Buffer {
-        var b = c.hb_buffer_create_similar(self.handle);
+        const b = c.hb_buffer_create_similar(self.handle);
         if (c.hb_buffer_allocation_successful(b) < 1)
             return null;
         return Buffer{ .handle = b.? };
@@ -645,7 +645,7 @@ pub const Face = struct {
     }
 
     pub fn collectUnicodes(self: Face) UnicodeIterator {
-        var set: *c.hb_set_t = undefined;
+        const set: *c.hb_set_t = undefined;
         c.hb_face_collect_unicodes(self.handle, set);
         return .{ .set = set };
     }
