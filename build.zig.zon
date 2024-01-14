@@ -18,8 +18,8 @@
             .hash = "12208c57b72e3fb5c8d5d3e667e2e21ca1d9e2b6fc3f84182b320f63933f591823da",
         },
         .harfbuzz = .{
-            .url = "https://pkg.machengine.org/harfbuzz/910fdf89f9a9b3945ca35e5e2d22d58cbc9546ad.tar.gz",
-            .hash = "12204bb1bf3ac969bb1621d46b2e2f8fe435eb493922650159ae05aa29364df47fc9",
+            .url = "https://pkg.machengine.org/harfbuzz/e3f204b30d335355285e5a7316e4dded7d43eac5.tar.gz",
+            .hash = "12209825eb84feff93817d277e18a0e3b9c8578a21081af24e09c16943fd1c35b76a",
         },
         .font_assets = .{
             .url = "https://pkg.machengine.org/font-assets/6b43c160451e8fa5c64620ffb614929feacf2f5d.tar.gz",

@@ -4,9 +4,7 @@ pub fn build(b: *std.Build) !void {
     const optimize = b.standardOptimizeOption(.{});
     const target = b.standardTargetOptions(.{});
     const use_system_zlib = b.option(bool, "use_system_zlib", "Use system zlib") orelse false;
-    _ = use_system_zlib;
     const enable_brotli = b.option(bool, "enable_brotli", "Build brotli") orelse true;
-    _ = enable_brotli;
 
     const freetype_module = b.addModule("mach-freetype", .{ .root_source_file = .{ .path = "src/freetype.zig" } });
     const harfbuzz_module = b.addModule("mach-harfbuzz", .{
@@ -17,6 +15,20 @@ pub fn build(b: *std.Build) !void {
 
     const font_assets_dep = b.dependency("font_assets", .{});
 
+    const freetype_dep = b.dependency("freetype", .{
+        .target = target,
+        .optimize = optimize,
+        .use_system_zlib = use_system_zlib,
+        .enable_brotli = enable_brotli,
+    });
+    const harfbuzz_dep = b.dependency("harfbuzz", .{
+        .target = target,
+        .optimize = optimize,
+        .enable_freetype = true,
+        .freetype_use_system_zlib = use_system_zlib,
+        .freetype_enable_brotli = enable_brotli,
+    });
+
     const freetype_tests = b.addTest(.{
         .name = "freetype-tests",
         .root_source_file = .{ .path = "src/freetype.zig" },
@@ -24,10 +36,7 @@ pub fn build(b: *std.Build) !void {
         .optimize = optimize,
     });
     freetype_tests.root_module.addImport("font-assets", font_assets_dep.module("font-assets"));
-    freetype_tests.linkLibrary(b.dependency("freetype", .{
-        .target = target,
-        .optimize = optimize,
-    }).artifact("freetype"));
+    freetype_tests.linkLibrary(freetype_dep.artifact("freetype"));
 
     const harfbuzz_tests = b.addTest(.{
         .name = "harfbuzz-tests",
@@ -36,14 +45,8 @@ pub fn build(b: *std.Build) !void {
         .optimize = optimize,
     });
     harfbuzz_tests.root_module.addImport("freetype", freetype_module);
-    harfbuzz_tests.linkLibrary(b.dependency("freetype", .{
-        .target = target,
-        .optimize = optimize,
-    }).artifact("freetype"));
-    harfbuzz_tests.linkLibrary(b.dependency("harfbuzz", .{
-        .target = target,
-        .optimize = optimize,
-    }).artifact("harfbuzz"));
+    harfbuzz_tests.linkLibrary(freetype_dep.artifact("freetype"));
+    harfbuzz_tests.linkLibrary(harfbuzz_dep.artifact("harfbuzz"));
 
     const test_step = b.step("test", "Run library tests");
     test_step.dependOn(&b.addRunArtifact(freetype_tests).step);
