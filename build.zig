@@ -8,10 +8,10 @@ pub fn build(b: *std.Build) !void {
     const enable_brotli = b.option(bool, "enable_brotli", "Build brotli") orelse true;
     _ = enable_brotli;
 
-    const freetype_module = b.addModule("mach-freetype", .{ .source_file = .{ .path = "src/freetype.zig" } });
+    const freetype_module = b.addModule("mach-freetype", .{ .root_source_file = .{ .path = "src/freetype.zig" } });
     const harfbuzz_module = b.addModule("mach-harfbuzz", .{
-        .source_file = .{ .path = "src/harfbuzz.zig" },
-        .dependencies = &.{.{ .name = "freetype", .module = freetype_module }},
+        .root_source_file = .{ .path = "src/harfbuzz.zig" },
+        .imports = &.{.{ .name = "freetype", .module = freetype_module }},
     });
     _ = harfbuzz_module;
 
@@ -23,8 +23,11 @@ pub fn build(b: *std.Build) !void {
         .target = target,
         .optimize = optimize,
     });
-    freetype_tests.addModule("font-assets", font_assets_dep.module("font-assets"));
-    linkFreetype(b, freetype_tests);
+    freetype_tests.root_module.addImport("font-assets", font_assets_dep.module("font-assets"));
+    freetype_tests.linkLibrary(b.dependency("freetype", .{
+        .target = target,
+        .optimize = optimize,
+    }).artifact("freetype"));
 
     const harfbuzz_tests = b.addTest(.{
         .name = "harfbuzz-tests",
@@ -32,9 +35,15 @@ pub fn build(b: *std.Build) !void {
         .target = target,
         .optimize = optimize,
     });
-    harfbuzz_tests.addModule("freetype", freetype_module);
-    linkFreetype(b, harfbuzz_tests);
-    linkHarfbuzz(b, harfbuzz_tests);
+    harfbuzz_tests.root_module.addImport("freetype", freetype_module);
+    harfbuzz_tests.linkLibrary(b.dependency("freetype", .{
+        .target = target,
+        .optimize = optimize,
+    }).artifact("freetype"));
+    harfbuzz_tests.linkLibrary(b.dependency("harfbuzz", .{
+        .target = target,
+        .optimize = optimize,
+    }).artifact("harfbuzz"));
 
     const test_step = b.step("test", "Run library tests");
     test_step.dependOn(&b.addRunArtifact(freetype_tests).step);
@@ -50,10 +59,8 @@ pub fn build(b: *std.Build) !void {
             .target = target,
             .optimize = optimize,
         });
-        example_exe.addModule("font-assets", font_assets_dep.module("font-assets"));
-        example_exe.addModule("freetype", freetype_module);
-        linkFreetype(b, example_exe);
-        linkHarfbuzz(b, example_exe);
+        example_exe.root_module.addImport("font-assets", font_assets_dep.module("font-assets"));
+        example_exe.root_module.addImport("freetype", freetype_module);
 
         const example_run_cmd = b.addRunArtifact(example_exe);
         if (b.args) |args| example_run_cmd.addArgs(args);
@@ -63,22 +70,20 @@ pub fn build(b: *std.Build) !void {
     }
 }
 
-pub fn linkFreetype(
+fn linkFreetype(
     b: *std.Build,
-    step: *std.build.CompileStep,
+    step: *std.Build.Step.Compile,
 ) void {
-    step.linkLibrary(b.dependency("freetype", .{
-        .target = step.target,
-        .optimize = step.optimize,
-    }).artifact("freetype"));
+    _ = b;
+    _ = step;
+    @panic("linkFreetype is deprecated / no longer needed, remove the call to it.");
 }
 
-pub fn linkHarfbuzz(
+fn linkHarfbuzz(
     b: *std.Build,
-    step: *std.build.CompileStep,
+    step: *std.Build.Step.Compile,
 ) void {
-    step.linkLibrary(b.dependency("harfbuzz", .{
-        .target = step.target,
-        .optimize = step.optimize,
-    }).artifact("harfbuzz"));
+    _ = b;
+    _ = step;
+    @panic("linkFreetype is deprecated / no longer needed, remove the call to it.");
 }
