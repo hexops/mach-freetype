@@ -77,7 +77,7 @@ pub fn build(b: *std.Build) !void {
     }
 }
 
-fn linkFreetype(
+pub fn linkFreetype(
     b: *std.Build,
     step: *std.Build.Step.Compile,
 ) void {
@@ -86,7 +86,7 @@ fn linkFreetype(
     @panic("linkFreetype is deprecated / no longer needed, remove the call to it.");
 }
 
-fn linkHarfbuzz(
+pub fn linkHarfbuzz(
     b: *std.Build,
     step: *std.Build.Step.Compile,
 ) void {
