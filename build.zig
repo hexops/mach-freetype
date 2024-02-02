@@ -76,21 +76,3 @@ pub fn build(b: *std.Build) !void {
         example_run_step.dependOn(&example_run_cmd.step);
     }
 }
-
-pub fn linkFreetype(
-    b: *std.Build,
-    step: *std.Build.Step.Compile,
-) void {
-    _ = b;
-    _ = step;
-    @panic("linkFreetype is deprecated / no longer needed, remove the call to it.");
-}
-
-pub fn linkHarfbuzz(
-    b: *std.Build,
-    step: *std.Build.Step.Compile,
-) void {
-    _ = b;
-    _ = step;
-    @panic("linkFreetype is deprecated / no longer needed, remove the call to it.");
-}
