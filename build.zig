@@ -6,30 +6,11 @@ pub fn build(b: *std.Build) !void {
     const use_system_zlib = b.option(bool, "use_system_zlib", "Use system zlib") orelse false;
     const enable_brotli = b.option(bool, "enable_brotli", "Build brotli") orelse true;
 
-    const font_assets_dep = b.dependency("font_assets", .{});
-    const freetype_dep = b.dependency("freetype", .{
-        .target = target,
-        .optimize = optimize,
-        .use_system_zlib = use_system_zlib,
-        .enable_brotli = enable_brotli,
-    });
-    const harfbuzz_dep = b.dependency("harfbuzz", .{
-        .target = target,
-        .optimize = optimize,
-        .enable_freetype = true,
-        .freetype_use_system_zlib = use_system_zlib,
-        .freetype_enable_brotli = enable_brotli,
-    });
-
     const freetype_module = b.addModule("mach-freetype", .{ .root_source_file = .{ .path = "src/freetype.zig" } });
-    freetype_module.linkLibrary(freetype_dep.artifact("freetype"));
-
     const harfbuzz_module = b.addModule("mach-harfbuzz", .{
         .root_source_file = .{ .path = "src/harfbuzz.zig" },
         .imports = &.{.{ .name = "freetype", .module = freetype_module }},
     });
-    harfbuzz_module.linkLibrary(freetype_dep.artifact("freetype"));
-    harfbuzz_module.linkLibrary(harfbuzz_dep.artifact("harfbuzz"));
 
     const freetype_tests = b.addTest(.{
         .name = "freetype-tests",
@@ -37,9 +18,7 @@ pub fn build(b: *std.Build) !void {
         .target = target,
         .optimize = optimize,
     });
-    freetype_tests.root_module.addImport("font-assets", font_assets_dep.module("font-assets"));
     freetype_tests.root_module.addImport("freetype", freetype_module);
-    freetype_tests.root_module.linkLibrary(freetype_dep.artifact("freetype"));
 
     const harfbuzz_tests = b.addTest(.{
         .name = "harfbuzz-tests",
@@ -49,8 +28,31 @@ pub fn build(b: *std.Build) !void {
     });
     harfbuzz_tests.root_module.addImport("freetype", freetype_module);
     harfbuzz_tests.root_module.addImport("harfbuzz", harfbuzz_module);
-    harfbuzz_tests.root_module.linkLibrary(harfbuzz_dep.artifact("harfbuzz"));
-    harfbuzz_tests.root_module.linkLibrary(freetype_dep.artifact("freetype"));
+
+    if (b.lazyDependency("font_assets", .{})) |dep| {
+        freetype_tests.root_module.addImport("font-assets", dep.module("font-assets"));
+    }
+    if (b.lazyDependency("freetype", .{
+        .target = target,
+        .optimize = optimize,
+        .use_system_zlib = use_system_zlib,
+        .enable_brotli = enable_brotli,
+    })) |dep| {
+        freetype_tests.root_module.linkLibrary(dep.artifact("freetype"));
+        freetype_module.linkLibrary(dep.artifact("freetype"));
+        harfbuzz_module.linkLibrary(dep.artifact("freetype"));
+        harfbuzz_tests.root_module.linkLibrary(dep.artifact("freetype"));
+    }
+    if (b.lazyDependency("harfbuzz", .{
+        .target = target,
+        .optimize = optimize,
+        .enable_freetype = true,
+        .freetype_use_system_zlib = use_system_zlib,
+        .freetype_enable_brotli = enable_brotli,
+    })) |dep| {
+        harfbuzz_module.linkLibrary(dep.artifact("harfbuzz"));
+        harfbuzz_tests.root_module.linkLibrary(dep.artifact("harfbuzz"));
+    }
 
     const test_step = b.step("test", "Run library tests");
     test_step.dependOn(&b.addRunArtifact(freetype_tests).step);
@@ -66,8 +68,10 @@ pub fn build(b: *std.Build) !void {
             .target = target,
             .optimize = optimize,
         });
-        example_exe.root_module.addImport("font-assets", font_assets_dep.module("font-assets"));
         example_exe.root_module.addImport("freetype", freetype_module);
+        if (b.lazyDependency("font_assets", .{})) |dep| {
+            example_exe.root_module.addImport("font-assets", dep.module("font-assets"));
+        }
 
         const example_run_cmd = b.addRunArtifact(example_exe);
         if (b.args) |args| example_run_cmd.addArgs(args);

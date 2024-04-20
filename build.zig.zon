@@ -14,16 +14,19 @@
     },
     .dependencies = .{
         .freetype = .{
-            .url = "https://pkg.machengine.org/freetype/a62aa6402fa0857723ac5556ddee98f038aec4e5.tar.gz",
-            .hash = "12209614e8bc8a6bde561b9c24b27a37f4ede244dba598b345cc56199fa7c6201f01",
+            .url = "https://pkg.machengine.org/freetype/ad7313db50a6bd29121d587effb3b308e21a20fd.tar.gz",
+            .hash = "122016f743edf65f5c0569f7ad06509218688e101c66f2c094d5d9400326945bcb90",
+            .lazy = true,
         },
         .harfbuzz = .{
-            .url = "https://pkg.machengine.org/harfbuzz/6560e4534509fc40dd1b28dc74d26d562fcb27bf.tar.gz",
-            .hash = "12203bd6464c3fe9a48fbc2d1444f932aacbc5bb19576860e170fcfe89d5884e7f80",
+            .url = "https://pkg.machengine.org/harfbuzz/ab0ce2cee88a03fb8a00aca9945ce7623f0544ed.tar.gz",
+            .hash = "1220d001c200dc5839f1b4302d12a699c7398498980f019671432ef9b0a1c22d85d7",
+            .lazy = true,
         },
         .font_assets = .{
             .url = "https://pkg.machengine.org/font-assets/7977df057e855140a207de49039114f1ab8e6c2d.tar.gz",
             .hash = "12208106eef051bc730bac17c2d10f7e42ea63b579b919480fec86b7c75a620c75d4",
+            .lazy = true,
         },
     },
 }
