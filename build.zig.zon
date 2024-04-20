@@ -1,5 +1,5 @@
 .{
-    .name = "mach-freetype",
+    .name = "mach_freetype",
     .version = "0.0.0",
     .paths = .{
         "examples",
