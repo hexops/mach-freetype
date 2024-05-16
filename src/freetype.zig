@@ -43,10 +43,10 @@ pub const SizeRequest = c.FT_Size_RequestRec;
 pub const Span = c.FT_Span;
 pub const Vector = c.FT_Vector;
 
-pub const angel_pi = c.FT_ANGLE_PI;
-pub const angel_2pi = c.FT_ANGLE_2PI;
-pub const angel_pi2 = c.FT_ANGLE_PI2;
-pub const angel_pi4 = c.FT_ANGLE_PI4;
+pub const angle_pi = c.FT_ANGLE_PI;
+pub const angle_2pi = c.FT_ANGLE_2PI;
+pub const angle_pi2 = c.FT_ANGLE_PI2;
+pub const angle_pi4 = c.FT_ANGLE_PI4;
 
 pub const BBoxMode = enum(u2) {
     // https://freetype.org/freetype2/docs/reference/ft2-glyph_management.html#ft_glyph_bbox_mode
