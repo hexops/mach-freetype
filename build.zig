@@ -6,15 +6,17 @@ pub fn build(b: *std.Build) !void {
     const use_system_zlib = b.option(bool, "use_system_zlib", "Use system zlib") orelse false;
     const enable_brotli = b.option(bool, "enable_brotli", "Build brotli") orelse true;
 
-    const freetype_module = b.addModule("mach-freetype", .{ .root_source_file = .{ .path = "src/freetype.zig" } });
+    const freetype_module = b.addModule("mach-freetype", .{
+        .root_source_file = b.path("src/freetype.zig"),
+    });
     const harfbuzz_module = b.addModule("mach-harfbuzz", .{
-        .root_source_file = .{ .path = "src/harfbuzz.zig" },
+        .root_source_file = b.path("src/harfbuzz.zig"),
         .imports = &.{.{ .name = "freetype", .module = freetype_module }},
     });
 
     const freetype_tests = b.addTest(.{
         .name = "freetype-tests",
-        .root_source_file = .{ .path = "src/freetype.zig" },
+        .root_source_file = b.path("src/freetype.zig"),
         .target = target,
         .optimize = optimize,
     });
@@ -22,7 +24,7 @@ pub fn build(b: *std.Build) !void {
 
     const harfbuzz_tests = b.addTest(.{
         .name = "harfbuzz-tests",
-        .root_source_file = .{ .path = "src/harfbuzz.zig" },
+        .root_source_file = b.path("src/harfbuzz.zig"),
         .target = target,
         .optimize = optimize,
     });
@@ -64,7 +66,7 @@ pub fn build(b: *std.Build) !void {
     }) |example| {
         const example_exe = b.addExecutable(.{
             .name = example,
-            .root_source_file = .{ .path = "examples/" ++ example ++ ".zig" },
+            .root_source_file = b.path("examples/" ++ example ++ ".zig"),
             .target = target,
             .optimize = optimize,
         });
