@@ -1,3 +1,5 @@
+const build_options = @import("build-options");
+
 pub const c = @cImport({
     @cInclude("freetype/ftadvanc.h");
     @cInclude("freetype/ftbbox.h");
@@ -8,6 +10,10 @@ pub const c = @cImport({
     @cInclude("freetype/ftstroke.h");
     @cInclude("freetype/fttrigon.h");
     @cInclude("freetype/ftsynth.h");
+    @cInclude("freetype/ftmodapi.h");
+    if (build_options.enable_ot_svg) {
+        @cInclude("freetype/otsvg.h");
+    }
 });
 
 pub const Affine23 = c.FT_Affine23;
@@ -1044,6 +1050,10 @@ pub const Library = struct {
     pub fn setLcdFilter(self: Library, lcd_filter: LcdFilter) Error!void {
         return intToError(c.FT_Library_SetLcdFilter(self.handle, @intFromEnum(lcd_filter)));
     }
+
+    pub fn setProperty(self: Library, module_name: [*c]const u8, property_name: [*c]const u8, value: *const anyopaque) Error!void {
+        return intToError(c.FT_Property_Set(self.handle, module_name, property_name, value));
+    }
 };
 
 pub const OpenArgs = struct {
@@ -1567,6 +1577,7 @@ pub const Error = error{
     BbxTooBig,
     CorruptedFontHeader,
     CorruptedFontGlyphs,
+    MissingSVGHooks,
 };
 
 pub fn intToError(err: c_int) Error!void {
@@ -1661,6 +1672,7 @@ pub fn intToError(err: c_int) Error!void {
         c.FT_Err_Bbx_Too_Big => Error.BbxTooBig,
         c.FT_Err_Corrupted_Font_Header => Error.CorruptedFontHeader,
         c.FT_Err_Corrupted_Font_Glyphs => Error.CorruptedFontGlyphs,
+        c.FT_Err_Missing_SVG_Hooks => Error.MissingSVGHooks,
         else => unreachable,
     };
 }
