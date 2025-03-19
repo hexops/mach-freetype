@@ -1,6 +1,7 @@
 .{
-    .name = "mach_freetype",
+    .name = .mach_freetype,
     .version = "0.0.0",
+    .fingerprint = 0x9ab36000f87fe286,
     .paths = .{
         "examples",
         "src",
@@ -15,17 +16,17 @@
     .dependencies = .{
         .freetype = .{
             .url = "https://pkg.machengine.org/freetype/972cd37bccecae2cc9f54cf0b562263a13209d02.tar.gz",
-            .hash = "12204cba3a237cd2c4ab983f5a28d9b54e7a9912d8c7c6e38e23140b0171d6e1ebf8",
+            .hash = "freetype-0.0.0-AAAAAA5JcwBMujojfNLEq5g_WijZtU56mRLYx8bjjiMU",
             .lazy = true,
         },
         .harfbuzz = .{
             .url = "https://pkg.machengine.org/harfbuzz/c514da98afcf5d9ad6854a7f09192f9ecfaeb061.tar.gz",
-            .hash = "1220203218ac17e497f3399e08115e73cb9505f1b9f07738eb0c5cc38ca443dec953",
+            .hash = "harfbuzz-0.0.0-AAAAAJZdgQAgMhisF-SX8zmeCBFec8uVBfG58Hc46wxc",
             .lazy = true,
         },
         .font_assets = .{
             .url = "https://pkg.machengine.org/font-assets/b2336a29b1ae633d47452a2041b258e9538ef5f0.tar.gz",
-            .hash = "1220521ff5b01885da9b3cba75b607b315f60ae351594ee9e4a270b164374889fea0",
+            .hash = "N-V-__8AAIooDABSH_WwGIXamzy6dbYHsxX2CuNRWU7p5KJw",
             .lazy = true,
         },
     },
