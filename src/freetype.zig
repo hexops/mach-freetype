@@ -272,10 +272,11 @@ pub const LoadFlags = packed struct(c_int) {
     color: bool = false,
     compute_metrics: bool = false,
     bitmap_metrics_only: bool = false,
+    _padding0: u1 = 0,
     no_svg: bool = false,
-    _padding0: u9 = 0,
+    _padding1: u7 = 0,
 
-    const Target = enum(u3) {
+    const Target = enum(u4) {
         normal = c.FT_LOAD_TARGET_NORMAL >> 16,
         light = c.FT_LOAD_TARGET_LIGHT >> 16,
         mono = c.FT_LOAD_TARGET_MONO >> 16,
