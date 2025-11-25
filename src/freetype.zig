@@ -1825,7 +1825,9 @@ pub fn getCharmapIndex(self: [*c]CharMap) ?u32 {
 }
 
 const std = @import("std");
-const font_assets = @import("font-assets");
+const font_assets = struct {
+    pub const fira_sans_regular_ttf = @embedFile("assets/FiraSans-Regular.ttf");
+};
 
 test "reference declarations" {
     // TODO: we cannot refAllDeclsRecursive(@This()) because of some errors in the

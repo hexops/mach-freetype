@@ -1,7 +1,9 @@
 // zig build run-example-single-glyph -- B
 const std = @import("std");
 const freetype = @import("freetype");
-const font_assets = @import("font-assets");
+const font_assets = struct {
+    pub const fira_sans_regular_ttf = @embedFile("assets/FiraSans-Regular.ttf");
+};
 
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};

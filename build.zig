@@ -31,9 +31,6 @@ pub fn build(b: *std.Build) !void {
     harfbuzz_tests.root_module.addImport("freetype", freetype_module);
     harfbuzz_tests.root_module.addImport("harfbuzz", harfbuzz_module);
 
-    if (b.lazyDependency("font_assets", .{})) |dep| {
-        freetype_tests.root_module.addImport("font-assets", dep.module("font-assets"));
-    }
     if (b.lazyDependency("freetype", .{
         .target = target,
         .optimize = optimize,
@@ -71,9 +68,6 @@ pub fn build(b: *std.Build) !void {
             .optimize = optimize,
         });
         example_exe.root_module.addImport("freetype", freetype_module);
-        if (b.lazyDependency("font_assets", .{})) |dep| {
-            example_exe.root_module.addImport("font-assets", dep.module("font-assets"));
-        }
 
         const example_run_cmd = b.addRunArtifact(example_exe);
         if (b.args) |args| example_run_cmd.addArgs(args);

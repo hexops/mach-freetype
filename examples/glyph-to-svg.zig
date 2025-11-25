@@ -1,6 +1,8 @@
 const std = @import("std");
 const freetype = @import("freetype");
-const font_assets = @import("font-assets");
+const font_assets = struct {
+    pub const fira_sans_regular_ttf = @embedFile("assets/FiraSans-Regular.ttf");
+};
 
 const OutlinePrinter = struct {
     library: freetype.Library,

@@ -23,10 +23,5 @@
             .hash = "1220203218ac17e497f3399e08115e73cb9505f1b9f07738eb0c5cc38ca443dec953",
             .lazy = true,
         },
-        .font_assets = .{
-            .url = "https://pkg.machengine.org/font-assets/b2336a29b1ae633d47452a2041b258e9538ef5f0.tar.gz",
-            .hash = "1220521ff5b01885da9b3cba75b607b315f60ae351594ee9e4a270b164374889fea0",
-            .lazy = true,
-        },
     },
 }
