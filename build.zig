@@ -5,6 +5,10 @@ pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
     const use_system_zlib = b.option(bool, "use_system_zlib", "Use system zlib") orelse false;
     const enable_brotli = b.option(bool, "enable_brotli", "Build brotli") orelse true;
+    const enable_ot_svg = b.option(bool, "enable_ot_svg", "enable OpenType SVG") orelse false;
+
+    const build_options = b.addOptions();
+    build_options.addOption(bool, "enable_ot_svg", enable_ot_svg);
 
     const freetype_module = b.addModule("mach-freetype", .{
         .root_source_file = b.path("src/freetype.zig"),
@@ -13,6 +17,7 @@ pub fn build(b: *std.Build) !void {
         .root_source_file = b.path("src/harfbuzz.zig"),
         .imports = &.{.{ .name = "freetype", .module = freetype_module }},
     });
+    freetype_module.addImport("build-options", build_options.createModule());
 
     const freetype_tests = b.addTest(.{
         .name = "freetype-tests",
